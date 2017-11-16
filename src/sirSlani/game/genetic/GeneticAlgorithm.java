@@ -14,7 +14,6 @@ public class GeneticAlgorithm {
         for (int i = elitism; i < population.getSize(); ++i) {
             Sudoku first = population.tournamentSelect(tournamentSize);
             Sudoku second = population.tournamentSelect(tournamentSize);
-
             Sudoku child = first.crossover(second);
             child = child.mutate(mutationProbability, mutationRate);
             newPopulation.addSudoku(child);
@@ -24,6 +23,6 @@ public class GeneticAlgorithm {
     }
 
     public static Population evolve(Population population) {
-        return evolve(population, 0.015, 3, 5, 1);
+        return evolve(population, 0.4, 5, 3, 3);
     }
 }

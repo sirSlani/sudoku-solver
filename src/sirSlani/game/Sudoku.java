@@ -1,19 +1,14 @@
 package sirSlani.game;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-public class Sudoku implements Comparable<Sudoku> {
+public class Sudoku {
 
     private int[][] elements;
-    private int[][] cleanElements;
     private List<Integer> initialElements;
 
     private static int MAX_SUM = 45;
     private static int MAX_PRODUCT = 362880;
-
-    private int fitness = -1;
 
     public Sudoku() {
         this.elements = new int[9][9];
@@ -25,8 +20,8 @@ public class Sudoku implements Comparable<Sudoku> {
     }
 
     public Sudoku(int[][] elements) {
-        this.elements = Arrays.copyOf(elements, elements.length);
-        this.cleanElements = elements;
+        this.initialElements = new ArrayList<>();
+        this.elements = copy(elements);
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
                 if (elements[i][j] != 0) {
@@ -35,6 +30,16 @@ public class Sudoku implements Comparable<Sudoku> {
             }
         }
         fillOut();
+    }
+
+    private int[][] copy(int[][] original) {
+        int[][] newar = new int[9][9];
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                newar[i][j] = original[i][j];
+            }
+        }
+        return newar;
     }
 
     private Sudoku(int[][] elements, List<Integer> initialElements) {
@@ -48,7 +53,7 @@ public class Sudoku implements Comparable<Sudoku> {
 
     public int[] getColumn(int i) {
         int[] column = new int[9];
-        for (int j = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
             column[j] = elements[j][i];
         }
         return column;
@@ -105,23 +110,44 @@ public class Sudoku implements Comparable<Sudoku> {
     }
 
     public int getFitness() {
-        if (this.fitness > -1) return this.fitness;
-        int fitness = 0;
+        int sums = 0;
+        int products = 0;
+        int cards = 0;
         for (int i = 0; i < 9; i++) {
-            fitness += 10 * (MAX_SUM - sumSegment(getRow(i)));
-            fitness += 10 * (MAX_SUM - sumSegment(getColumn(i)));
-            fitness += 10 * (MAX_SUM - sumSegment(getRegion(i)));
+            sums += Math.abs(MAX_SUM - sumSegment(getRow(i)));
+            sums += Math.abs(MAX_SUM - sumSegment(getColumn(i)));
+            sums += Math.abs(MAX_SUM - sumSegment(getRegion(i)));
 
-            fitness += Math.sqrt(MAX_PRODUCT - productSegment(getRow(i)));
-            fitness += Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i)));
-            fitness += Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i)));
+            products += Math.abs(Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
+            products += Math.abs(Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
+            products += Math.abs(Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
 
-            fitness += 50 * (9 - cardinalitySegment(getRow(i)));
-            fitness += 50 * (9 - cardinalitySegment(getColumn(i)));
-            fitness += 50 * (9 - cardinalitySegment(getRegion(i)));
+            cards += 9 - cardinalitySegment(getRow(i));
+            cards += 9 - cardinalitySegment(getColumn(i));
+            cards += 9 - cardinalitySegment(getRegion(i));
         }
+        return 10*sums + products + 50*cards;
+    }
 
-        return fitness;
+    public void debugFitness() {
+        int sums = 0;
+        int products = 0;
+        int cards = 0;
+        for (int i = 0; i < 9; i++) {
+            sums += 10 * Math.abs(MAX_SUM - sumSegment(getRow(i)));
+            sums += 10 * Math.abs(MAX_SUM - sumSegment(getColumn(i)));
+            sums += 10 * Math.abs(MAX_SUM - sumSegment(getRegion(i)));
+
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
+
+            cards += 50*(9 - cardinalitySegment(getRow(i)));
+            cards += 50*(9 - cardinalitySegment(getColumn(i)));
+            cards += 50*(9 - cardinalitySegment(getRegion(i)));
+        }
+        System.out.println(sums + " " + products + " " + cards);
+
     }
 
     private void fillOut() {
@@ -144,7 +170,7 @@ public class Sudoku implements Comparable<Sudoku> {
         }
     }
 
-    private boolean isSolved() {
+    public boolean isSolved() {
         for (int i = 0; i < 9; ++i) {
             if (cardinalitySegment(getRow(i)) != 9) return false;
             if (cardinalitySegment(getColumn(i)) != 9) return false;
@@ -192,10 +218,11 @@ public class Sudoku implements Comparable<Sudoku> {
     }
 
     public Sudoku crossover(Sudoku other) {
-        Sudoku newSudoku = new Sudoku(this.elements, this.initialElements);
+        Sudoku newSudoku = new Sudoku(copy(this.elements), this.initialElements);
         newSudoku.clear();
-
-        while (!newSudoku.isComplete()) {
+        int n = 0;
+        while (!newSudoku.isComplete() && n < 10) {
+            n++;
             boolean coinFlip = Math.random() > 0.5;
             int segment = (int) (1 + 8 * Math.random());
             if (coinFlip) {
@@ -208,12 +235,17 @@ public class Sudoku implements Comparable<Sudoku> {
                 newSudoku.fillRegion(getRegion(segment), segment);
             }
         }
+        if (!newSudoku.isComplete()) {
+            for (int i = 0; i < 9; ++i) {
+                newSudoku.fillRow(getRow(i), i);
+            }
+        }
 
         return newSudoku;
     }
 
     public Sudoku mutate(double probability, int rateOfMutation) {
-        Sudoku newSudoku = new Sudoku(this.elements, this.initialElements);
+        Sudoku newSudoku = new Sudoku(copy(this.elements), this.initialElements);
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 boolean coinFlip = Math.random() < probability;
@@ -226,11 +258,42 @@ public class Sudoku implements Comparable<Sudoku> {
                 }
             }
         }
+        return flipDoubles(flipDoubles(newSudoku, false), true);
+    }
+
+    private Sudoku flipDoubles(Sudoku sudoku, boolean axis) {
+        Sudoku newSudoku = new Sudoku(copy(sudoku.elements), sudoku.initialElements);
+        for (int i = 0; i < 9; ++i) {
+            Set<Integer> has = new HashSet<>();
+            for (int j = 0; j < 9; ++j) {
+                int x = axis ? i : j;
+                int y = axis ? j : i;
+                boolean coinToss = Math.random() <= 0.5;
+                int flip = coinToss ? -1 : 1;
+                if (has.contains(sudoku.elements[x][y])) {
+                    newSudoku.elements[x][y] += flip;
+                    if (newSudoku.elements[x][y] > 9) newSudoku.elements[x][y] = 8;
+                    if (newSudoku.elements[x][y] < 1) newSudoku.elements[x][y] = 2;
+                } else {
+                    has.add(sudoku.elements[x][y]);
+                }
+            }
+        }
         return newSudoku;
     }
 
     @Override
-    public int compareTo(Sudoku o) {
-        return Integer.compare(this.getFitness(), o.getFitness());
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                sb.append(elements[i][j]);
+                sb.append(' ');
+            }
+            sb.setLength(sb.length()-1);
+            sb.append('\n');
+        }
+        sb.setLength(sb.length()-1);
+        return sb.toString();
     }
 }

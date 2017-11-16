@@ -38,7 +38,17 @@ public class Population {
     }
 
     private void sort() {
-        Collections.sort(sudokus);
+        sudokus.sort(new Comparator<Sudoku>() {
+            @Override
+            public int compare(Sudoku o1, Sudoku o2) {
+                int fit1 = o1.getFitness();
+                int fit2 = o2.getFitness();
+
+                if (fit1 < fit2) return -1;
+                if (fit1 > fit2) return 1;
+                return 0;
+            }
+        });
     }
 
     public int getSize() {
