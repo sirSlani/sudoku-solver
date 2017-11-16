@@ -23,6 +23,6 @@ public class GeneticAlgorithm {
     }
 
     public static Population evolve(Population population) {
-        return evolve(population, 0.4, 5, 3, 3);
+        return evolve(population, 0.015, 3, 5, 5);
     }
 }
