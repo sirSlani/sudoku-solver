@@ -118,9 +118,9 @@ public class Sudoku {
             sums += Math.abs(MAX_SUM - sumSegment(getColumn(i)));
             sums += Math.abs(MAX_SUM - sumSegment(getRegion(i)));
 
-            products += Math.abs(Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
-            products += Math.abs(Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
-            products += Math.abs(Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
 
             cards += 9 - cardinalitySegment(getRow(i));
             cards += 9 - cardinalitySegment(getColumn(i));
