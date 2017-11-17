@@ -64,8 +64,34 @@ public class Population {
         for (int i = 0; i < size; ++i) {
             int random = (int) (getSize() * Math.random());
             tournament.addSudoku(this.getSudoku(random));
+            //tournament.addSudoku(rouletteSelection());
         }
 
         return tournament.getFittest();
+    }
+
+    private Sudoku rouletteSelection() {
+        int sum = 0;
+        for (Sudoku sudoku : sudokus) {
+            sum += sudoku.getFitness();
+        }
+        int random = (int) (sum * Math.random());
+
+        for (Sudoku sudoku : sudokus) {
+            random -= sudoku.getFitness();
+            if (random <= 0) return sudoku;
+        }
+
+        return sudokus.get(sudokus.size()-1);
+    }
+
+    public void addDecay(Population other) {
+        for (Sudoku sudokuT : sudokus) {
+            for (Sudoku sudokuO : other.sudokus) {
+                if (sudokuO.equals(sudokuT)) {
+                    sudokuT.addDecay(sudokuO);
+                }
+            }
+        }
     }
 }

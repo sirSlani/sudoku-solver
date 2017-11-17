@@ -9,6 +9,7 @@ public class Sudoku {
 
     private static int MAX_SUM = 45;
     private static int MAX_PRODUCT = 362880;
+    private int decay;
 
     public Sudoku() {
         this.elements = new int[9][9];
@@ -114,19 +115,20 @@ public class Sudoku {
         int products = 0;
         int cards = 0;
         for (int i = 0; i < 9; i++) {
-            sums += Math.abs(MAX_SUM - sumSegment(getRow(i)));
-            sums += Math.abs(MAX_SUM - sumSegment(getColumn(i)));
-            sums += Math.abs(MAX_SUM - sumSegment(getRegion(i)));
-
-            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
-            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
-            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
-
+            //sums += Math.abs(MAX_SUM - sumSegment(getRow(i)));
+            //sums += Math.abs(MAX_SUM - sumSegment(getColumn(i)));
+            //sums += Math.abs(MAX_SUM - sumSegment(getRegion(i)));
+//
+            //products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
+            //products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
+            //products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
+//
             cards += 9 - cardinalitySegment(getRow(i));
             cards += 9 - cardinalitySegment(getColumn(i));
             cards += 9 - cardinalitySegment(getRegion(i));
         }
-        return 10*sums + products + 50*cards;
+        //return 10*sums + products + 50*cards + (int) (0.05 * decay);
+        return cards;
     }
 
     public void debugFitness() {
@@ -146,7 +148,7 @@ public class Sudoku {
             cards += 50*(9 - cardinalitySegment(getColumn(i)));
             cards += 50*(9 - cardinalitySegment(getRegion(i)));
         }
-        System.out.println(sums + " " + products + " " + cards);
+        //System.out.println(sums + " " + products + " " + cards + " " + decay);
 
     }
 
@@ -220,7 +222,8 @@ public class Sudoku {
     public Sudoku crossover(Sudoku other) {
         Sudoku newSudoku = new Sudoku(copy(this.elements), this.initialElements);
         newSudoku.clear();
-        int n = 0;
+        //int n = 0;
+        /*
         while (!newSudoku.isComplete() && n < 10) {
             n++;
             boolean coinFlip = Math.random() > 0.5;
@@ -239,6 +242,15 @@ public class Sudoku {
             for (int i = 0; i < 9; ++i) {
                 newSudoku.fillRow(getRow(i), i);
             }
+        }*/
+
+        boolean coinFlip = Math.random() <= 0.5;
+        for (int i = 0; i < 9; ++i) {
+            if (coinFlip ^ (i % 2 == 0)) {
+                newSudoku.fillRegion(this.getRegion(i), i);
+            } else {
+                newSudoku.fillRegion(other.getRegion(i), i);
+            }
         }
 
         return newSudoku;
@@ -246,7 +258,7 @@ public class Sudoku {
 
     public Sudoku mutate(double probability, int rateOfMutation) {
         Sudoku newSudoku = new Sudoku(copy(this.elements), this.initialElements);
-        for (int i = 0; i < 3; ++i) {
+        /*for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 boolean coinFlip = Math.random() < probability;
                 if (coinFlip && !initialElements.contains(i*3 + j)) {
@@ -257,19 +269,84 @@ public class Sudoku {
                     newSudoku.elements[i][j] = mutated;
                 }
             }
+        }*/
+
+        int num = (int) (Math.random() * rateOfMutation);
+
+        for (int i = 0; i < num; ++i) {
+            boolean coinFlip = Math.random() <= probability;
+            int region = (int) (Math.random() * 8);
+            int first = (int) (Math.random() * 8);
+            int second = (int) (Math.random() * 8);
+            int x1 = first / 3;
+            int y1 = first % 3;
+            int x2 = second / 3;
+            int y2 = second % 3;
+
+            if (coinFlip && !initialElements.contains(flatId(x1, y1, region)) && !initialElements.contains(flatId(x2, y2, region))) {
+                x1 = coorRegion(x1, regionX(region));
+                y1 = coorRegion(y1, regionY(region));
+                x2 = coorRegion(x2, regionX(region));
+                y2 = coorRegion(y2, regionY(region));
+
+                int temp = elements[x1][y1];
+                elements[x1][y1] = elements[x2][y2];
+                elements[x2][y2] = temp;
+            }
         }
-        return flipDoubles(flipDoubles(newSudoku, false), true);
+        return flipDoubles(flipDoubles(flipDoubles(newSudoku, 0), 1), 2);
     }
 
-    private Sudoku flipDoubles(Sudoku sudoku, boolean axis) {
+    private int coorRegion(int coor, int regionCoor) {
+        return coor + regionCoor * 3;
+    }
+
+    private int regionX(int region) {
+        return region / 3;
+    }
+
+    private int regionY(int region) {
+        return region % 3;
+    }
+
+    private int flatId(int x, int y) {
+        return y * 9 + x;
+    }
+
+    private int flatId(int x, int y, int regionX, int regionY) {
+        return flatId(coorRegion(x, regionX), coorRegion(y, regionY));
+    }
+
+    private int flatId(int x, int y, int region) {
+        return flatId(x, y, regionX(region), regionY(region));
+    }
+
+    private Sudoku flipDoubles(Sudoku sudoku, int axis) {
         Sudoku newSudoku = new Sudoku(copy(sudoku.elements), sudoku.initialElements);
         for (int i = 0; i < 9; ++i) {
             Set<Integer> has = new HashSet<>();
             for (int j = 0; j < 9; ++j) {
-                int x = axis ? i : j;
-                int y = axis ? j : i;
-                boolean coinToss = Math.random() <= 0.5;
-                int flip = coinToss ? -1 : 1;
+                int x, y;
+                switch (axis) {
+                    case 0: {
+                        x = i;
+                        y = j;
+                    } break;
+                    case 1: {
+                        x = j;
+                        y = i;
+                    } break;
+                    case 2: {
+                        x = coorRegion(regionX(j), regionX(i));
+                        y = coorRegion(regionY(j), regionY(j));
+                    } break;
+                    default: {
+                        x = 0; y = 0;
+                    }
+                }
+
+                boolean coinFlip = Math.random() > 0.5;
+                int flip = coinFlip ? -1 : 1;
                 if (has.contains(sudoku.elements[x][y])) {
                     newSudoku.elements[x][y] += flip;
                     if (newSudoku.elements[x][y] > 9) newSudoku.elements[x][y] = 8;
@@ -295,5 +372,28 @@ public class Sudoku {
         }
         sb.setLength(sb.length()-1);
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Sudoku sudoku = (Sudoku) o;
+
+        return Arrays.deepEquals(elements, sudoku.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(elements);
+    }
+
+    public void addDecay() {
+        this.decay++;
+    }
+
+    public void addDecay(Sudoku other) {
+        this.decay += (other.decay > 0) ? other.decay : 1;
     }
 }

@@ -9,6 +9,25 @@ import java.util.Set;
 
 public class SudokuSolver {
 
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
+
+    public static final String ANSI_BLACK_BACKGROUND = "\u001B[40m";
+    public static final String ANSI_RED_BACKGROUND = "\u001B[41m";
+    public static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+    public static final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
+    public static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
+    public static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
+    public static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
+    public static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+
     public static void main(String[] args) {
         int[][] sudoku = new int[][]{
                 {0,3,0, 0,9,0, 1,4,0},
@@ -28,18 +47,21 @@ public class SudokuSolver {
 
         int generationCount = 0;
         while (!population.getFittest().isSolved() || generationCount < 25000) {
+            Population oldPop = population;
             generationCount++;
-            System.out.println("Generation #" + generationCount + ": fitness = " + population.getFittest().getFitness());
-            for (int i = 0; i < 50; ++i) {
-                System.out.print(population.getSudoku(i).getFitness() + " ");
+            if (generationCount %100 == 0) {
+                System.out.println("Generation #" + generationCount + ": fitness = " + population.getFittest().getFitness());
+                for (int i = 0; i < 50; ++i) {
+                    System.out.print(population.getSudoku(i).getFitness() + " ");
+                }
+                System.out.println();
+                Sudoku fittest = population.getFittest();
+                //fittest.debugFitness();
+                System.out.println(fittest);
+                evaluate(fittest);
             }
-            System.out.println();
-            Sudoku fittest = population.getFittest();
-            fittest.debugFitness();
-            System.out.println(fittest);
-            evaluate(fittest);
             population = GeneticAlgorithm.evolve(population);
-
+            //population.addDecay(oldPop);
         }
 
         System.out.println("Solution: ");
@@ -78,5 +100,38 @@ public class SudokuSolver {
             has.add(seg[i]);
         }
         return true;
+    }
+    public String formattedSudoku(Sudoku sudoku) {
+        int[][] evaluation = new int[9][9];
+        for (int i = 0; i < 9; ++i) {
+            boolean row, col, reg;
+            row = evaluateSegment(sudoku.getRow(i));
+            col = evaluateSegment(sudoku.getColumn(i));
+            reg = evaluateSegment(sudoku.getRegion(i));
+
+            if (row) {
+                for (int j = 0; j < 9; ++j) {
+                    evaluation[i][j]++;
+                }
+            }
+
+            if (col) {
+                for (int j = 0; j < 9; ++j) {
+                    evaluation[j][i]++;
+                }
+            }
+
+            if (reg) {
+                for (int j = 0; j < 3; ++j) {
+                    for (int k = 0; k < 3; ++k) {
+                        evaluation[(i/3)*3 +j][(i%3)*3+k]++;
+                    }
+                }
+            }
+        }
+
+        
+
+        return "";
     }
 }
