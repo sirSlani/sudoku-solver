@@ -35,7 +35,7 @@ public class Region extends AbstractSegment {
         int rY = i % 3;
         int rawX = x * 3 + rX;
         int rawY = y * 3 + rY;
-        return initialElements[rawX][rawY];
+        return !initialElements[rawX][rawY];
     }
 
     @Override

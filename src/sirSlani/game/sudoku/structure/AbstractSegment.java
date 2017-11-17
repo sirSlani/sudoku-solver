@@ -60,7 +60,7 @@ public abstract class AbstractSegment implements ISegment {
             Set<Integer> nohas = new HashSet<>();
             Set<Integer> has = new HashSet<>();
             for (int i = 0; i < 9; ++i) {
-                if (isSafe(i)) {
+                if (!isSafe(i)) {
                     has.add(vals[i]);
                 }
             }
@@ -73,7 +73,7 @@ public abstract class AbstractSegment implements ISegment {
             Iterator<Integer> it = nohas.iterator();
 
             for (int i = 0; i < 9; ++i) {
-                if (!isSafe(i)) {
+                if (isSafe(i)) {
                     newVals[i] = it.next();
                 } else {
                     newVals[i] = vals[i];
@@ -96,7 +96,7 @@ public abstract class AbstractSegment implements ISegment {
             int second = (int) (8 * Math.random());
 
             if (first == second) continue;
-            if (!isSafe(first) && !isSafe(second)) {
+            if (isSafe(first) && isSafe(second)) {
                 int temp = newVals[first];
                 newVals[first] = newVals[second];
                 newVals[second] = temp;

@@ -35,6 +35,6 @@ public class Row extends AbstractSegment {
 
     @Override
     public boolean isSafe(int i) {
-        return initialElements[row][i];
+        return !initialElements[row][i];
     }
 }

@@ -13,7 +13,7 @@ public class Sudoku {
 
     private static int MAX_SUM = 45;
     private static int MAX_PRODUCT = 362880;
-    private int decay;
+    private int decay = 0;
 
     private List<Region> regions;
     private List<Row> rows;
@@ -76,41 +76,20 @@ public class Sudoku {
         int products = 0;
         int cards = 0;
         for (int i = 0; i < 9; i++) {
-            //sums += Math.abs(MAX_SUM - sumSegment(getRow(i)));
-            //sums += Math.abs(MAX_SUM - sumSegment(getColumn(i)));
-            //sums += Math.abs(MAX_SUM - sumSegment(getRegion(i)));
-//
-            //products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRow(i))));
-            //products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getColumn(i))));
-            //products += Math.abs((int) Math.sqrt(MAX_PRODUCT - productSegment(getRegion(i))));
-//
-            cards += 9 - rows.get(i).cardinality();
-            cards += 9 - columns.get(i).cardinality();
-            cards += 9 - regions.get(i).cardinality();
-        }
-        //return 10*sums + products + 50*cards + (int) (0.05 * decay);
-        return cards;
-    }
-
-    public void debugFitness() {
-        int sums = 0;
-        int products = 0;
-        int cards = 0;
-        for (int i = 0; i < 9; i++) {
-            sums += 10 * Math.abs(MAX_SUM - rows.get(i).sum());
+            /*sums += 10 * Math.abs(MAX_SUM - rows.get(i).sum());
             sums += 10 * Math.abs(MAX_SUM - columns.get(i).sum());
             sums += 10 * Math.abs(MAX_SUM - regions.get(i).sum());
 
             products += Math.abs((int) Math.sqrt(MAX_PRODUCT - rows.get(i).product()));
             products += Math.abs((int) Math.sqrt(MAX_PRODUCT - columns.get(i).product()));
-            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - regions.get(i).product()));
+            products += Math.abs((int) Math.sqrt(MAX_PRODUCT - regions.get(i).product()));*/
 
             cards += 9 - rows.get(i).cardinality();
             cards += 9 - columns.get(i).cardinality();
-            cards += 9 - regions.get(i).cardinality();
+//            cards += 9 - regions.get(i).cardinality();
         }
-        //System.out.println(sums + " " + products + " " + cards + " " + decay);
-
+//        return 10*sums + products + 50*cards;
+        return cards;
     }
 
     private void fillOut() {
@@ -213,7 +192,7 @@ public class Sudoku {
     }
 
     public void addDecay(Sudoku other) {
-        this.decay += (other.decay > 0) ? other.decay : 1;
+        this.decay = other.decay + 1;
     }
 
     public int[] getRow(int i) {

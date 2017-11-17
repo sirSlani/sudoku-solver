@@ -40,6 +40,6 @@ public class Column extends AbstractSegment {
 
     @Override
     public boolean isSafe(int i) {
-        return initialElements[i][column];
+        return !initialElements[i][column];
     }
 }

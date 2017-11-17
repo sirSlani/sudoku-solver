@@ -11,7 +11,7 @@ import java.util.Set;
 public class SudokuSolver {
 
     public static void main(String[] args) {
-        int[][] sudoku = new int[][]{
+        /*int[][] sudoku = new int[][]{
                 {0,3,0, 0,9,0, 1,4,0},
                 {1,0,6, 7,2,0, 0,0,0},
                 {0,7,0, 0,0,0, 0,6,8},
@@ -23,7 +23,9 @@ public class SudokuSolver {
                 {3,8,0, 0,0,0, 0,1,0},
                 {0,0,0, 0,8,4, 3,0,9},
                 {0,9,1, 0,5,0, 0,8,0}
-        };
+        };*/
+
+        int[][] sudoku = new int[9][9];
 
         Population population = new Population(50, sudoku, true);
 
@@ -31,7 +33,7 @@ public class SudokuSolver {
         while (!population.getFittest().isSolved() || generationCount < 25000) {
             Population oldPop = population;
             generationCount++;
-            //if (generationCount %100 == 0) {
+            if (generationCount %500 == 0) {
                 System.out.println("Generation #" + generationCount + ": fitness = " + population.getFittest().getFitness());
                 for (int i = 0; i < 50; ++i) {
                     System.out.print(population.getSudoku(i).getFitness() + " ");
@@ -41,7 +43,7 @@ public class SudokuSolver {
                 //fittest.debugFitness();
                 System.out.println(fittest);
                 evaluate(fittest);
-            //}
+            }
             population = GeneticAlgorithm.evolve(population);
             //population.addDecay(oldPop);
         }
