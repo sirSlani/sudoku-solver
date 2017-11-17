@@ -57,6 +57,7 @@ public class Region extends AbstractSegment {
     }
 
     private void swapElements(int i1, int j1, int i2, int j2) {
+
         int temp = elements[x*3 + i1][y*3 + j1];
         elements[x*3 + i1][y*3 + j1] = elements[x*3 + i2][y*3 + j2];
         elements[x*3 + i2][y*3 + j2] = temp;
@@ -65,11 +66,12 @@ public class Region extends AbstractSegment {
     @Override
     public void swapElements(int a, int b) {
         if (!isSafe(a) || !isSafe(b)) return;
-        int i1 = x*3 + a/3;
-        int j1 = y*3 + a%3;
-        int i2 = x*3 + b/3;
-        int j2 = y*3 + b%3;
-        swapElements(i1, j1, i2, j2);
+        int ax = a / 3;
+        int ay = a % 3;
+        int bx = b / 3;
+        int by = b % 3;
+
+        swapElements(ax, ay, bx, by);
     }
 
 }

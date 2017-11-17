@@ -31,7 +31,7 @@ public class SudokuSolver {
         while (!population.getFittest().isSolved() || generationCount < 25000) {
             Population oldPop = population;
             generationCount++;
-            if (generationCount %100 == 0) {
+            //if (generationCount %100 == 0) {
                 System.out.println("Generation #" + generationCount + ": fitness = " + population.getFittest().getFitness());
                 for (int i = 0; i < 50; ++i) {
                     System.out.print(population.getSudoku(i).getFitness() + " ");
@@ -41,7 +41,7 @@ public class SudokuSolver {
                 //fittest.debugFitness();
                 System.out.println(fittest);
                 evaluate(fittest);
-            }
+            //}
             population = GeneticAlgorithm.evolve(population);
             //population.addDecay(oldPop);
         }

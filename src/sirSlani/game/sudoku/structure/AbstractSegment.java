@@ -58,9 +58,15 @@ public abstract class AbstractSegment implements ISegment {
         if (clear) {
             int[] newVals = new int[9];
             Set<Integer> nohas = new HashSet<>();
+            Set<Integer> has = new HashSet<>();
             for (int i = 0; i < 9; ++i) {
-                if (!isSafe(i)) {
-                    nohas.add(i+1);
+                if (isSafe(i)) {
+                    has.add(vals[i]);
+                }
+            }
+            for (int i = 1; i <= 9; ++i) {
+                if (!has.contains(i)) {
+                    nohas.add(i);
                 }
             }
 
