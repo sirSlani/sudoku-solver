@@ -19,19 +19,9 @@ public class Sudoku {
     private List<Row> rows;
     private List<Column> columns;
 
-    {
-        regions = new ArrayList<>();
-        rows = new ArrayList<>();
-        columns = new ArrayList<>();
-        for (int i = 0; i < 9; ++i) {
-            regions.add(new Region(elements, initialElements, i));
-            rows.add(new Row(elements, initialElements, i));
-            columns.add(new Column(elements, initialElements, i));
-        }
-    }
-
     public Sudoku() {
         this.elements = new int[9][9];
+        initSegments();
     }
 
     public Sudoku(boolean[][] initialElements) {
@@ -42,6 +32,7 @@ public class Sudoku {
     public Sudoku(int[][] elements) {
         this.initialElements = new boolean[9][9];
         this.elements = copy(elements);
+        initSegments();
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
                 if (elements[i][j] != 0) {
@@ -55,6 +46,19 @@ public class Sudoku {
     private Sudoku(int[][] elements, boolean[][] initialElements) {
         this.elements = elements;
         this.initialElements = initialElements;
+
+        initSegments();
+    }
+
+    private void initSegments() {
+        regions = new ArrayList<>();
+        rows = new ArrayList<>();
+        columns = new ArrayList<>();
+        for (int i = 0; i < 9; ++i) {
+            regions.add(new Region(elements, initialElements, i));
+            rows.add(new Row(elements, initialElements, i));
+            columns.add(new Column(elements, initialElements, i));
+        }
     }
 
     private int[][] copy(int[][] original) {
