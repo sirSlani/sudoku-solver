@@ -1,6 +1,6 @@
 package sirSlani.game.genetic;
 
-import sirSlani.game.Sudoku;
+import sirSlani.game.sudoku.Sudoku;
 
 import java.util.*;
 
@@ -38,16 +38,13 @@ public class Population {
     }
 
     private void sort() {
-        sudokus.sort(new Comparator<Sudoku>() {
-            @Override
-            public int compare(Sudoku o1, Sudoku o2) {
-                int fit1 = o1.getFitness();
-                int fit2 = o2.getFitness();
+        sudokus.sort((o1, o2) -> {
+            int fit1 = o1.getFitness();
+            int fit2 = o2.getFitness();
 
-                if (fit1 < fit2) return -1;
-                if (fit1 > fit2) return 1;
-                return 0;
-            }
+            if (fit1 < fit2) return -1;
+            if (fit1 > fit2) return 1;
+            return 0;
         });
     }
 

@@ -1,6 +1,6 @@
 package sirSlani.game.genetic;
 
-import sirSlani.game.Sudoku;
+import sirSlani.game.sudoku.Sudoku;
 
 public class GeneticAlgorithm {
 
