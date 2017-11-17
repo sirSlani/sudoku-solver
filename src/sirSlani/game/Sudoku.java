@@ -4,12 +4,19 @@ import java.util.*;
 
 public class Sudoku {
 
-    private int[][] elements;
+    private int[][] elements = new int[9][9];
     private List<Integer> initialElements;
 
     private static int MAX_SUM = 45;
     private static int MAX_PRODUCT = 362880;
     private int decay;
+
+    private List<Region> regions;
+
+    {
+        regions = new ArrayList<>();
+        for (int i = 0; i < 9; ++i) regions.add(new Region(elements, i));
+    }
 
     public Sudoku() {
         this.elements = new int[9][9];
@@ -33,6 +40,11 @@ public class Sudoku {
         fillOut();
     }
 
+    private Sudoku(int[][] elements, List<Integer> initialElements) {
+        this.elements = elements;
+        this.initialElements = initialElements;
+    }
+
     private int[][] copy(int[][] original) {
         int[][] newar = new int[9][9];
         for (int i = 0; i < 9; ++i) {
@@ -42,12 +54,6 @@ public class Sudoku {
         }
         return newar;
     }
-
-    private Sudoku(int[][] elements, List<Integer> initialElements) {
-        this.elements = elements;
-        this.initialElements = initialElements;
-    }
-
     public int[] getRow(int i) {
         return Arrays.copyOf(elements[i], 9);
     }
@@ -72,6 +78,52 @@ public class Sudoku {
 
     public int[][] getRegion(int i) {
         return getRegion(i / 3, i % 3);
+    }
+
+    private class Region {
+        private int[][] elements;
+        private int x, y;
+
+        public Region(int[][] elements, int x, int y) {
+            this.elements = elements;
+            this.x = x;
+            this.y = y;
+        }
+
+        public Region(int[][] elements, int i) {
+            this.elements = elements;
+            this.x = i / 3;
+            this.y = i % 3;
+        }
+
+        public int[][] getRegion() {
+            int[][] region = new int[3][3];
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    region[i][j] = elements[x*3 + i][y*3 + j];
+                }
+            }
+            return region;
+        }
+
+        public int getElement(int i, int j) {
+            return elements[x*3 + i][y*3 + j];
+        }
+
+        public void setElement(int i, int j, int value) {
+            elements[x*3 + i][y*3 + j] = value;
+        }
+
+        public void swapElements(int i1, int j1, int i2, int j2) {
+            int temp = elements[x*3 + i1][y*3 + j1];
+            elements[x*3 + i1][y*3 + j1] = elements[x*3 + i2][y*3 + j2];
+            elements[x*3 + i2][y*3 + j2] = temp;
+        }
+
+        public void swapElements(int a, int b) {
+            int i = x*3 + a/3;
+            int j = y*3 + b%3;
+        }
     }
 
     private int sumSegment(int[] segment) {
